@@ -1,14 +1,24 @@
-import ActionButton from '../common/ActionButton';
-import CloseButton from '../common/CloseButton';
-import AppContext from '../../AppContext';
-import PlansSection, {SingleProductPlansSection} from '../common/PlansSection';
-import ProductsSection from '../common/ProductsSection';
-import InputForm from '../common/InputForm';
-import {ValidateInputForm} from '../../utils/form';
-import {getSiteProducts, getSitePrices, hasMultipleProducts, hasOnlyFreePlan, isInviteOnlySite, getAvailableProducts, hasMultipleProductsFeature} from '../../utils/helpers';
-import {ReactComponent as InvitationIcon} from '../../images/icons/invitation.svg';
+import ActionButton from "../common/ActionButton";
+import CloseButton from "../common/CloseButton";
+import AppContext from "../../AppContext";
+import PlansSection, {
+    SingleProductPlansSection,
+} from "../common/PlansSection";
+import ProductsSection from "../common/ProductsSection";
+import InputForm from "../common/InputForm";
+import { ValidateInputForm } from "../../utils/form";
+import {
+    getSiteProducts,
+    getSitePrices,
+    hasMultipleProducts,
+    hasOnlyFreePlan,
+    isInviteOnlySite,
+    getAvailableProducts,
+    hasMultipleProductsFeature,
+} from "../../utils/helpers";
+import { ReactComponent as InvitationIcon } from "../../images/icons/invitation.svg";
 
-const React = require('react');
+const React = require("react");
 
 export const SignupPageStyles = `
     .gh-portal-signup-logo {
@@ -237,17 +247,18 @@ class SignupPage extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            name: '',
-            email: '',
-            plan: 'free'
+            name: "",
+            email: "",
+            id: "",
+            plan: "free",
         };
     }
 
     componentDidMount() {
-        const {member} = this.context;
+        const { member } = this.context;
         if (member) {
-            this.context.onAction('switchPage', {
-                page: 'accountHome'
+            this.context.onAction("switchPage", {
+                page: "accountHome",
             });
         }
 
@@ -260,13 +271,16 @@ class SignupPage extends React.Component {
     }
 
     handleSelectedPlan() {
-        const {site, pageQuery} = this.context;
-        const prices = getSitePrices({site, pageQuery});
+        const { site, pageQuery } = this.context;
+        const prices = getSitePrices({ site, pageQuery });
 
-        const selectedPriceId = this.getSelectedPriceId(prices, this.state.plan);
+        const selectedPriceId = this.getSelectedPriceId(
+            prices,
+            this.state.plan
+        );
         if (selectedPriceId !== this.state.plan) {
             this.setState({
-                plan: selectedPriceId
+                plan: selectedPriceId,
             });
         }
     }
@@ -277,28 +291,35 @@ class SignupPage extends React.Component {
 
     handleSignup(e) {
         e.preventDefault();
-        this.setState((state) => {
-            return {
-                errors: ValidateInputForm({fields: this.getInputFields({state})})
-            };
-        }, () => {
-            const {onAction} = this.context;
-            const {name, email, plan, errors} = this.state;
-            const hasFormErrors = (errors && Object.values(errors).filter(d => !!d).length > 0);
-            if (!hasFormErrors) {
-                onAction('signup', {name, email, plan});
-                this.setState({
-                    errors: {}
-                });
+        this.setState(
+            (state) => {
+                return {
+                    errors: ValidateInputForm({
+                        fields: this.getInputFields({ state }),
+                    }),
+                };
+            },
+            () => {
+                const { onAction } = this.context;
+                const { name, email, id, plan, errors } = this.state;
+                const hasFormErrors =
+                    errors &&
+                    Object.values(errors).filter((d) => !!d).length > 0;
+                if (!hasFormErrors) {
+                    onAction("signup", { name, email, plan });
+                    this.setState({
+                        errors: {},
+                    });
+                }
             }
-        });
+        );
     }
 
     handleInputChange(e, field) {
         const fieldName = field.name;
         const value = e.target.value;
         this.setState({
-            [fieldName]: value
+            [fieldName]: value,
         });
     }
 
@@ -308,62 +329,72 @@ class SignupPage extends React.Component {
         this.timeoutId = setTimeout(() => {
             this.setState((prevState) => {
                 return {
-                    plan: priceId
+                    plan: priceId,
                 };
             });
         }, 5);
-    }
+    };
 
     onKeyDown(e) {
         // Handles submit on Enter press
-        if (e.keyCode === 13){
+        if (e.keyCode === 13) {
             this.handleSignup(e);
         }
     }
 
     getSelectedPriceId(prices = [], selectedPriceId) {
         if (!prices || prices.length === 0) {
-            return 'free';
+            return "free";
         }
         const hasSelectedPlan = prices.some((p) => {
             return p.id === selectedPriceId;
         });
 
         if (!hasSelectedPlan) {
-            return prices[0].id || 'free';
+            return prices[0].id || "free";
         }
 
         return selectedPriceId;
     }
 
-    getInputFields({state, fieldNames}) {
-        const {portal_name: portalName} = this.context.site;
+    getInputFields({ state, fieldNames }) {
+        const { portal_name: portalName } = this.context.site;
 
         const errors = state.errors || {};
         const fields = [
             {
-                type: 'email',
+                type: "email",
                 value: state.email,
-                placeholder: 'jamie@example.com',
-                label: 'Email',
-                name: 'email',
+                placeholder: "abc123@aucklanduni.ac.nz",
+                label: "UoA Email (or normal email if you don't have one)",
+                name: "email",
                 required: true,
                 tabindex: 2,
-                errorMessage: errors.email || ''
-            }
+                errorMessage: errors.email || "",
+            },
+            {
+                type: "text",
+                value: state.id,
+                placeholder: "123456789",
+                label: "Student ID (or blank if you don't have one)",
+                name: "id",
+                required: true,
+                tabindex: 2,
+                errorMessage: errors.id || "",
+            },
         ];
 
         /** Show Name field if portal option is set*/
         if (portalName) {
             fields.unshift({
-                type: 'text',
+                type: "text",
                 value: state.name,
-                placeholder: 'Jamie Larson',
-                label: 'Name',
-                name: 'name',
+                placeholder: "Jamie Larson",
+                label: "Name",
+                name: "name",
                 required: true,
                 tabindex: 1,
-                errorMessage: errors.name || ''
+                errorMessage: errors.name || "",
             });
         }
         fields[0].autoFocus = true;
@@ -376,48 +407,48 @@ class SignupPage extends React.Component {
     }
 
     renderSubmitButton() {
-        const {action, site, brandColor, pageQuery} = this.context;
+        const { action, site, brandColor, pageQuery } = this.context;
 
-        if (isInviteOnlySite({site, pageQuery})) {
+        if (isInviteOnlySite({ site, pageQuery })) {
             return null;
         }
 
-        let label = 'Continue';
-        if (hasOnlyFreePlan({site})) {
-            label = 'Sign up';
+        let label = "Continue";
+        if (hasOnlyFreePlan({ site })) {
+            label = "Sign up";
         }
 
         let isRunning = false;
-        if (action === 'signup:running') {
-            label = 'Sending...';
+        if (action === "signup:running") {
+            label = "Sending...";
             isRunning = true;
         }
         let retry = false;
-        if (action === 'signup:failed') {
-            label = 'Retry';
+        if (action === "signup:failed") {
+            label = "Retry";
             retry = true;
         }
 
-        const disabled = (action === 'signup:running') ? true : false;
+        const disabled = action === "signup:running" ? true : false;
         return (
             <ActionButton
-                style={{width: '100%'}}
+                style={{ width: "100%" }}
                 retry={retry}
-                onClick={e => this.handleSignup(e)}
+                onClick={(e) => this.handleSignup(e)}
                 disabled={disabled}
                 brandColor={brandColor}
                 label={label}
                 isRunning={isRunning}
-                tabIndex='3'
+                tabIndex="3"
             />
         );
     }
 
     renderPlans() {
-        const {site, pageQuery} = this.context;
-        const prices = getSitePrices({site, pageQuery});
-        if (hasMultipleProductsFeature({site})) {
-            const availableProducts = getAvailableProducts({site});
+        const { site, pageQuery } = this.context;
+        const prices = getSitePrices({ site, pageQuery });
+        if (hasMultipleProductsFeature({ site })) {
+            const availableProducts = getAvailableProducts({ site });
             const product = availableProducts?.[0];
             return (
                 <SingleProductPlansSection
@@ -442,8 +473,8 @@ class SignupPage extends React.Component {
     }
 
     renderProducts() {
-        const {site} = this.context;
-        const products = getSiteProducts({site});
+        const { site } = this.context;
+        const products = getSiteProducts({ site });
         return (
             <>
                 <ProductsSection
@@ -455,14 +486,14 @@ class SignupPage extends React.Component {
     }
 
     renderLoginMessage() {
-        const {brandColor, onAction} = this.context;
+        const { brandColor, onAction } = this.context;
         return (
-            <div className='gh-portal-signup-message'>
+            <div className="gh-portal-signup-message">
                 <div>Already a member?</div>
                 <button
-                    className='gh-portal-btn gh-portal-btn-link'
-                    style={{color: brandColor}}
-                    onClick={() => onAction('switchPage', {page: 'signin'})}
+                    className="gh-portal-btn gh-portal-btn-link"
+                    style={{ color: brandColor }}
+                    onClick={() => onAction("switchPage", { page: "signin" })}
                 >
                     <span>Sign in</span>
                 </button>
@@ -471,8 +502,8 @@ class SignupPage extends React.Component {
     }
 
     renderProductsOrPlans() {
-        const {site} = this.context;
-        if (hasMultipleProducts({site})) {
+        const { site } = this.context;
+        if (hasMultipleProducts({ site })) {
             return this.renderProducts();
         } else {
             return this.renderPlans();
@@ -480,14 +511,17 @@ class SignupPage extends React.Component {
     }
 
     renderForm() {
-        const fields = this.getInputFields({state: this.state});
-        const {site, pageQuery} = this.context;
+        const fields = this.getInputFields({ state: this.state });
+        const { site, pageQuery } = this.context;
 
-        if (isInviteOnlySite({site, pageQuery})) {
+        if (isInviteOnlySite({ site, pageQuery })) {
             return (
                 <section>
-                    <div className='gh-portal-section'>
-                        <p className='gh-portal-invite-only-notification'>This site is invite-only, contact the owner for access.</p>
+                    <div className="gh-portal-section">
+                        <p className="gh-portal-invite-only-notification">
+                            This site is invite-only, contact the owner for
+                            access.
+                        </p>
                     </div>
                 </section>
             );
@@ -495,11 +529,13 @@ class SignupPage extends React.Component {
 
         return (
             <section>
-                <div className='gh-portal-section'>
+                <div className="gh-portal-section">
                     <InputForm
                         fields={fields}
-                        onChange={(e, field) => this.handleInputChange(e, field)}
-                        onKeyDown={e => this.onKeyDown(e)}
+                        onChange={(e, field) =>
+                            this.handleInputChange(e, field)
+                        }
+                        onKeyDown={(e) => this.onKeyDown(e)}
                     />
                     {this.renderProductsOrPlans()}
                 </div>
@@ -508,7 +544,7 @@ class SignupPage extends React.Component {
     }
 
     renderSiteLogo() {
-        const {site, pageQuery} = this.context;
+        const { site, pageQuery } = this.context;
 
         const siteLogo = site.icon;
 
@@ -517,21 +553,25 @@ class SignupPage extends React.Component {
         if (siteLogo) {
             logoStyle.backgroundImage = `url(${siteLogo})`;
             return (
-                <img className='gh-portal-signup-logo' src={siteLogo} alt={site.title} />
+                <img
+                    className="gh-portal-signup-logo"
+                    src={siteLogo}
+                    alt={site.title}
+                />
             );
-        } else if (isInviteOnlySite({site, pageQuery})) {
+        } else if (isInviteOnlySite({ site, pageQuery })) {
             return (
-                <InvitationIcon className='gh-portal-icon gh-portal-icon-invitation' />
+                <InvitationIcon className="gh-portal-icon gh-portal-icon-invitation" />
             );
         }
         return null;
     }
 
     renderFormHeader() {
-        const {site} = this.context;
-        const siteTitle = site.title || '';
+        const { site } = this.context;
+        const siteTitle = site.title || "";
         return (
-            <header className='gh-portal-signup-header'>
+            <header className="gh-portal-signup-header">
                 {this.renderSiteLogo()}
                 <h2 className="gh-portal-main-title">{siteTitle}</h2>
             </header>
@@ -539,40 +579,43 @@ class SignupPage extends React.Component {
     }
 
     getClassNames() {
-        const {site, pageQuery} = this.context;
-        const plansData = getSitePrices({site, pageQuery});
-        const fields = this.getInputFields({state: this.state});
-        let sectionClass = '';
-        let footerClass = '';
+        const { site, pageQuery } = this.context;
+        const plansData = getSitePrices({ site, pageQuery });
+        const fields = this.getInputFields({ state: this.state });
+        let sectionClass = "";
+        let footerClass = "";
 
-        if (plansData.length <= 1 || isInviteOnlySite({site})) {
-            if ((plansData.length === 1 && plansData[0].type === 'free') || isInviteOnlySite({site, pageQuery})) {
-                sectionClass = 'noplan';
+        if (plansData.length <= 1 || isInviteOnlySite({ site })) {
+            if (
+                (plansData.length === 1 && plansData[0].type === "free") ||
+                isInviteOnlySite({ site, pageQuery })
+            ) {
+                sectionClass = "noplan";
                 if (fields.length === 1) {
-                    sectionClass = 'single-field';
+                    sectionClass = "single-field";
                 }
-                if (isInviteOnlySite({site})) {
-                    footerClass = 'invite-only';
-                    sectionClass = 'invite-only';
+                if (isInviteOnlySite({ site })) {
+                    footerClass = "invite-only";
+                    sectionClass = "invite-only";
                 }
             } else {
-                sectionClass = 'singleplan';
+                sectionClass = "singleplan";
             }
         }
-        return {sectionClass, footerClass};
+        return { sectionClass, footerClass };
     }
 
     renderMultipleProducts() {
-        let {sectionClass, footerClass} = this.getClassNames();
+        let { sectionClass, footerClass } = this.getClassNames();
 
         return (
             <>
-                <div className={'gh-portal-content signup' + sectionClass}>
+                <div className={"gh-portal-content signup" + sectionClass}>
                     <CloseButton />
                     {this.renderFormHeader()}
                     {this.renderForm()}
                 </div>
-                <footer className={'gh-portal-signup-footer ' + footerClass}>
+                <footer className={"gh-portal-signup-footer " + footerClass}>
                     {this.renderSubmitButton()}
                     {this.renderLoginMessage()}
                 </footer>
@@ -581,16 +624,16 @@ class SignupPage extends React.Component {
     }
 
     renderSingleProduct() {
-        let {sectionClass, footerClass} = this.getClassNames();
+        let { sectionClass, footerClass } = this.getClassNames();
 
         return (
             <>
-                <div className={'gh-portal-content signup ' + sectionClass}>
+                <div className={"gh-portal-content signup " + sectionClass}>
                     <CloseButton />
                     {this.renderFormHeader()}
                     {this.renderForm()}
                 </div>
-                <footer className={'gh-portal-signup-footer ' + footerClass}>
+                <footer className={"gh-portal-signup-footer " + footerClass}>
                     {this.renderSubmitButton()}
                     {this.renderLoginMessage()}
                 </footer>
@@ -599,16 +642,16 @@ class SignupPage extends React.Component {
     }
 
     render() {
-        let {sectionClass, footerClass} = this.getClassNames();
+        let { sectionClass, footerClass } = this.getClassNames();
 
         return (
             <>
-                <div className={'gh-portal-content signup ' + sectionClass}>
+                <div className={"gh-portal-content signup " + sectionClass}>
                     <CloseButton />
                     {this.renderFormHeader()}
                     {this.renderForm()}
                 </div>
-                <footer className={'gh-portal-signup-footer ' + footerClass}>
+                <footer className={"gh-portal-signup-footer " + footerClass}>
                     {this.renderSubmitButton()}
                     {this.renderLoginMessage()}
                 </footer>

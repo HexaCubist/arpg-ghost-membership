@@ -1,10 +1,10 @@
 {
-  "name": "@tryghost/portal",
+  "name": "@hexacubist/ghost-club-portal",
   "version": "1.11.1",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git://github.com/TryGhost/Portal.git"
+    "url": "git://github.com/hexacubist/club-portal.git"
   },
   "author": "Ghost Foundation",
   "unpkg": "umd/portal.min.js",
