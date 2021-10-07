@@ -1,15 +1,15 @@
-import * as Sentry from "@sentry/react";
-import TriggerButton from "./components/TriggerButton";
-import Notification from "./components/Notification";
-import PopupModal from "./components/PopupModal";
-import setupGhostApi from "./utils/api";
-import AppContext from "./AppContext";
-import { hasMode } from "./utils/check-mode";
-import { getActivePage, isAccountPage } from "./pages";
-import * as Fixtures from "./utils/fixtures";
-import ActionHandler from "./actions";
-import "./App.css";
-import NotificationParser from "./utils/notifications";
+import * as Sentry from '@sentry/react';
+import TriggerButton from './components/TriggerButton';
+import Notification from './components/Notification';
+import PopupModal from './components/PopupModal';
+import setupGhostApi from './utils/api';
+import AppContext from './AppContext';
+import {hasMode} from './utils/check-mode';
+import {getActivePage, isAccountPage} from './pages';
+import * as Fixtures from './utils/fixtures';
+import ActionHandler from './actions';
+import './App.css';
+import NotificationParser from './utils/notifications';
 import {
     createPopupNotification,
     getAvailablePrices,
@@ -21,21 +21,21 @@ import {
     isComplimentaryMember,
     isInviteOnlySite,
     isSentryEventAllowed,
-    removePortalLinkFromUrl,
-} from "./utils/helpers";
+    removePortalLinkFromUrl
+} from './utils/helpers';
 
-const handleDataAttributes = require("./data-attributes");
-const React = require("react");
+const handleDataAttributes = require('./data-attributes');
+const React = require('react');
 
 const DEV_MODE_DATA = {
     showPopup: true,
     site: Fixtures.site,
     member: Fixtures.member.paid,
-    page: "signup",
+    page: 'signup'
 };
 
-function SentryErrorBoundary({ site, children }) {
-    const { portal_sentry: portalSentry } = site || {};
+function SentryErrorBoundary({site, children}) {
+    const {portal_sentry: portalSentry} = site || {};
     if (portalSentry && portalSentry.dsn) {
         return <Sentry.ErrorBoundary>{children}</Sentry.ErrorBoundary>;
     }
@@ -55,12 +55,12 @@ export default class App extends React.Component {
         this.state = props.testState || {
             site: null,
             member: null,
-            page: "loading",
+            page: 'loading',
             showPopup: false,
-            action: "init:running",
-            initStatus: "running",
+            action: 'init:running',
+            initStatus: 'running',
             lastPage: null,
-            customSiteUrl: props.customSiteUrl,
+            customSiteUrl: props.customSiteUrl
         };
     }
 
@@ -78,16 +78,16 @@ export default class App extends React.Component {
         }
 
         if (
-            this.state.initStatus === "success" &&
+            this.state.initStatus === 'success' &&
             prevState.initStatus !== this.state.initStatus
         ) {
-            const { siteUrl } = this.props;
+            const {siteUrl} = this.props;
             const contextState = this.getContextFromState();
             this.sendPortalReadyEvent();
             handleDataAttributes({
                 siteUrl,
                 site: contextState.site,
-                member: contextState.member,
+                member: contextState.member
             });
         }
     }
@@ -98,7 +98,7 @@ export default class App extends React.Component {
         this.customTriggerButtons &&
             this.customTriggerButtons.forEach((customTriggerButton) => {
                 customTriggerButton.removeEventListener(
-                    "click",
+                    'click',
                     this.clickHandler
                 );
             });
@@ -108,10 +108,10 @@ export default class App extends React.Component {
         if (window.self !== window.parent) {
             window.parent.postMessage(
                 {
-                    type: "portal-ready",
-                    payload: {},
+                    type: 'portal-ready',
+                    payload: {}
                 },
-                "*"
+                '*'
             );
         }
     }
@@ -123,35 +123,35 @@ export default class App extends React.Component {
             event.preventDefault();
             const target = event.currentTarget;
             const pagePath = target && target.dataset.portal;
-            const { page, pageQuery } =
+            const {page, pageQuery} =
                 this.getPageFromLinkPath(pagePath) || {};
-            if (this.state.initStatus === "success") {
-                if (pageQuery && pageQuery !== "free") {
+            if (this.state.initStatus === 'success') {
+                if (pageQuery && pageQuery !== 'free') {
                     this.handleSignupQuery({
                         site: this.state.site,
-                        pageQuery,
+                        pageQuery
                     });
                 } else {
-                    this.dispatchAction("openPopup", { page, pageQuery });
+                    this.dispatchAction('openPopup', {page, pageQuery});
                 }
             }
         };
-        const customTriggerSelector = "[data-portal]";
-        const popupCloseClass = "gh-portal-close";
+        const customTriggerSelector = '[data-portal]';
+        const popupCloseClass = 'gh-portal-close';
         this.customTriggerButtons =
             document.querySelectorAll(customTriggerSelector) || [];
         this.customTriggerButtons.forEach((customTriggerButton) => {
             customTriggerButton.classList.add(popupCloseClass);
             // Remove any existing event listener
-            customTriggerButton.removeEventListener("click", this.clickHandler);
-            customTriggerButton.addEventListener("click", this.clickHandler);
+            customTriggerButton.removeEventListener('click', this.clickHandler);
+            customTriggerButton.addEventListener('click', this.clickHandler);
         });
     }
 
     /** Handle portal class set on custom trigger buttons */
     handleCustomTriggerClassUpdate() {
-        const popupOpenClass = "gh-portal-open";
-        const popupCloseClass = "gh-portal-close";
+        const popupOpenClass = 'gh-portal-open';
+        const popupCloseClass = 'gh-portal-close';
         this.customTriggerButtons.forEach((customButton) => {
             const elAddClass = this.state.showPopup
                 ? popupOpenClass
@@ -175,7 +175,7 @@ export default class App extends React.Component {
                 showPopup,
                 popupNotification,
                 lastPage,
-                pageQuery,
+                pageQuery
             } = await this.fetchData();
             const state = {
                 site,
@@ -185,10 +185,10 @@ export default class App extends React.Component {
                 pageQuery,
                 showPopup,
                 popupNotification,
-                action: "init:success",
-                initStatus: "success",
+                action: 'init:success',
+                initStatus: 'success'
             };
-            this.handleSignupQuery({ site, pageQuery });
+            this.handleSignupQuery({site, pageQuery});
 
             this.setState(state);
 
@@ -196,28 +196,28 @@ export default class App extends React.Component {
             this.hashHandler = () => {
                 this.updateStateForPreviewLinks();
             };
-            window.addEventListener("hashchange", this.hashHandler, false);
+            window.addEventListener('hashchange', this.hashHandler, false);
         } catch (e) {
             /* eslint-disable no-console */
             console.error(`[Portal] Failed to initialize:`, e);
             /* eslint-enable no-console */
             this.setState({
-                action: "init:failed",
-                initStatus: "failed",
+                action: 'init:failed',
+                initStatus: 'failed'
             });
         }
     }
 
     /** Fetch state data from all available sources */
     async fetchData() {
-        const { site: apiSiteData, member } = await this.fetchApiData();
-        const { site: devSiteData, ...restDevData } = this.fetchDevData();
-        const { site: linkSiteData, ...restLinkData } = this.fetchLinkData();
-        const { site: previewSiteData, ...restPreviewData } =
+        const {site: apiSiteData, member} = await this.fetchApiData();
+        const {site: devSiteData, ...restDevData} = this.fetchDevData();
+        const {site: linkSiteData, ...restLinkData} = this.fetchLinkData();
+        const {site: previewSiteData, ...restPreviewData} =
             this.fetchPreviewData();
-        const { site: notificationSiteData, ...restNotificationData } =
+        const {site: notificationSiteData, ...restNotificationData} =
             this.fetchNotificationData();
-        let page = "";
+        let page = '';
 
         return {
             member,
@@ -231,32 +231,32 @@ export default class App extends React.Component {
                 plans: {
                     ...(devSiteData || {}).plans,
                     ...(apiSiteData || {}).plans,
-                    ...(previewSiteData || {}).plans,
-                },
+                    ...(previewSiteData || {}).plans
+                }
             },
             ...restDevData,
             ...restLinkData,
             ...restNotificationData,
-            ...restPreviewData,
+            ...restPreviewData
         };
     }
 
     /** Fetch state for Dev mode */
     fetchDevData() {
         // Setup custom dev mode data from fixtures
-        if (hasMode(["dev"]) && !this.state.customSiteUrl) {
+        if (hasMode(['dev']) && !this.state.customSiteUrl) {
             return DEV_MODE_DATA;
         }
         return {};
     }
 
     /** Fetch state from Preview mode Query String */
-    fetchQueryStrData(qs = "") {
+    fetchQueryStrData(qs = '') {
         const qsParams = new URLSearchParams(qs);
         const data = {
             site: {
-                plans: {},
-            },
+                plans: {}
+            }
         };
 
         const allowedPlans = [];
@@ -267,47 +267,47 @@ export default class App extends React.Component {
         for (let pair of qsParams.entries()) {
             const key = pair[0];
             const value = decodeURIComponent(pair[1]);
-            if (key === "button") {
+            if (key === 'button') {
                 data.site.portal_button = JSON.parse(value);
-            } else if (key === "name") {
+            } else if (key === 'name') {
                 data.site.portal_name = JSON.parse(value);
-            } else if (key === "isFree" && JSON.parse(value)) {
-                allowedPlans.push("free");
-            } else if (key === "isMonthly" && JSON.parse(value)) {
-                allowedPlans.push("monthly");
-            } else if (key === "isYearly" && JSON.parse(value)) {
-                allowedPlans.push("yearly");
-            } else if (key === "portalPrices") {
-                portalPrices = value ? value.split(",") : [];
-            } else if (key === "portalProducts") {
-                portalProducts = value ? value.split(",") : [];
-            } else if (key === "page" && value) {
+            } else if (key === 'isFree' && JSON.parse(value)) {
+                allowedPlans.push('free');
+            } else if (key === 'isMonthly' && JSON.parse(value)) {
+                allowedPlans.push('monthly');
+            } else if (key === 'isYearly' && JSON.parse(value)) {
+                allowedPlans.push('yearly');
+            } else if (key === 'portalPrices') {
+                portalPrices = value ? value.split(',') : [];
+            } else if (key === 'portalProducts') {
+                portalProducts = value ? value.split(',') : [];
+            } else if (key === 'page' && value) {
                 data.page = value;
-            } else if (key === "accentColor" && (value === "" || value)) {
+            } else if (key === 'accentColor' && (value === '' || value)) {
                 data.site.accent_color = value;
-            } else if (key === "buttonIcon" && value) {
+            } else if (key === 'buttonIcon' && value) {
                 data.site.portal_button_icon = value;
-            } else if (key === "signupButtonText") {
-                data.site.portal_button_signup_text = value || "";
-            } else if (key === "buttonStyle" && value) {
+            } else if (key === 'signupButtonText') {
+                data.site.portal_button_signup_text = value || '';
+            } else if (key === 'buttonStyle' && value) {
                 data.site.portal_button_style = value;
-            } else if (key === "monthlyPrice" && !isNaN(Number(value))) {
+            } else if (key === 'monthlyPrice' && !isNaN(Number(value))) {
                 data.site.plans.monthly = Number(value);
                 monthlyPrice = Number(value);
-            } else if (key === "yearlyPrice" && !isNaN(Number(value))) {
+            } else if (key === 'yearlyPrice' && !isNaN(Number(value))) {
                 data.site.plans.yearly = Number(value);
                 yearlyPrice = Number(value);
-            } else if (key === "currency" && value) {
+            } else if (key === 'currency' && value) {
                 const currencyValue = value.toUpperCase();
                 data.site.plans.currency = currencyValue;
                 data.site.plans.currency_symbol =
                     getCurrencySymbol(currencyValue);
                 currency = currencyValue;
-            } else if (key === "disableBackground") {
+            } else if (key === 'disableBackground') {
                 data.site.disableBackground = JSON.parse(value);
-            } else if (key === "allowSelfSignup") {
+            } else if (key === 'allowSelfSignup') {
                 data.site.allow_self_signup = JSON.parse(value);
-            } else if (key === "membersSignupAccess" && value) {
+            } else if (key === 'membersSignupAccess' && value) {
                 data.site.members_signup_access = value;
             }
         }
@@ -318,27 +318,27 @@ export default class App extends React.Component {
         } else if (monthlyPrice && yearlyPrice && currency) {
             data.site.prices = [
                 {
-                    id: "monthly",
-                    stripe_price_id: "dummy_stripe_monthly",
-                    stripe_product_id: "dummy_stripe_product",
+                    id: 'monthly',
+                    stripe_price_id: 'dummy_stripe_monthly',
+                    stripe_product_id: 'dummy_stripe_product',
                     active: 1,
-                    nickname: "Monthly",
+                    nickname: 'Monthly',
                     currency: currency,
                     amount: monthlyPrice,
-                    type: "recurring",
-                    interval: "month",
+                    type: 'recurring',
+                    interval: 'month'
                 },
                 {
-                    id: "yearly",
-                    stripe_price_id: "dummy_stripe_yearly",
-                    stripe_product_id: "dummy_stripe_product",
+                    id: 'yearly',
+                    stripe_price_id: 'dummy_stripe_yearly',
+                    stripe_product_id: 'dummy_stripe_product',
                     active: 1,
-                    nickname: "Yearly",
+                    nickname: 'Yearly',
                     currency: currency,
                     amount: yearlyPrice,
-                    type: "recurring",
-                    interval: "year",
-                },
+                    type: 'recurring',
+                    interval: 'year'
+                }
             ];
         }
         return data;
@@ -346,10 +346,10 @@ export default class App extends React.Component {
 
     /**Fetch state data for billing notification */
     fetchNotificationData() {
-        const { type, status, duration, autoHide, closeable } =
-            NotificationParser({ billingOnly: true }) || {};
-        if (["stripe:billing-update"].includes(type)) {
-            if (status === "success") {
+        const {type, status, duration, autoHide, closeable} =
+            NotificationParser({billingOnly: true}) || {};
+        if (['stripe:billing-update'].includes(type)) {
+            if (status === 'success') {
                 const popupNotification = createPopupNotification({
                     type,
                     status,
@@ -358,17 +358,17 @@ export default class App extends React.Component {
                     autoHide,
                     state: this.state,
                     message:
-                        status === "success"
-                            ? "Billing info updated successfully"
-                            : "",
+                        status === 'success'
+                            ? 'Billing info updated successfully'
+                            : ''
                 });
                 return {
                     showPopup: true,
-                    popupNotification,
+                    popupNotification
                 };
             }
             return {
-                showPopup: true,
+                showPopup: true
             };
         }
         return {};
@@ -379,17 +379,17 @@ export default class App extends React.Component {
         const productMonthlyPriceQueryRegex = /^(?:(\w+?))?\/monthly$/;
         const productYearlyPriceQueryRegex = /^(?:(\w+?))?\/monthly$/;
         const offersRegex = /^offers\/(\w+?)\/?$/;
-        const [path] = window.location.hash.substr(1).split("?");
+        const [path] = window.location.hash.substr(1).split('?');
         const linkRegex = /^\/portal\/?(?:\/(\w+(?:\/\w+)*))?\/?$/;
         if (path && linkRegex.test(path)) {
             const [, pagePath] = path.match(linkRegex);
-            const { page, pageQuery } =
+            const {page, pageQuery} =
                 this.getPageFromLinkPath(pagePath) || {};
-            const lastPage = ["accountPlan", "accountProfile"].includes(page)
-                ? "accountHome"
+            const lastPage = ['accountPlan', 'accountProfile'].includes(page)
+                ? 'accountHome'
                 : null;
             const showPopup =
-                ["monthly", "yearly"].includes(pageQuery) ||
+                ['monthly', 'yearly'].includes(pageQuery) ||
                 productMonthlyPriceQueryRegex.test(pageQuery) ||
                 productYearlyPriceQueryRegex.test(pageQuery) ||
                 offersRegex.test(pageQuery)
@@ -397,9 +397,9 @@ export default class App extends React.Component {
                     : true;
             return {
                 showPopup,
-                ...(page ? { page } : {}),
-                ...(pageQuery ? { pageQuery } : {}),
-                ...(lastPage ? { lastPage } : {}),
+                ...(page ? {page} : {}),
+                ...(pageQuery ? {pageQuery} : {}),
+                ...(lastPage ? {lastPage} : {})
             };
         }
         return {};
@@ -407,8 +407,8 @@ export default class App extends React.Component {
 
     /** Fetch state from Preview mode */
     fetchPreviewData() {
-        const [, qs] = window.location.hash.substr(1).split("?");
-        if (hasMode(["preview"])) {
+        const [, qs] = window.location.hash.substr(1).split('?');
+        if (hasMode(['preview'])) {
             const data = this.fetchQueryStrData(qs);
             data.showPopup = true;
             return data;
@@ -418,7 +418,7 @@ export default class App extends React.Component {
 
     /* Get the accent color from data attributes */
     getColorOverride() {
-        const scriptTag = document.querySelector("script[data-ghost]");
+        const scriptTag = document.querySelector('script[data-ghost]');
         if (scriptTag && scriptTag.dataset.accentColor) {
             return scriptTag.dataset.accentColor;
         }
@@ -427,21 +427,21 @@ export default class App extends React.Component {
 
     /** Fetch site and member session data with Ghost Apis  */
     async fetchApiData() {
-        const { siteUrl, customSiteUrl } = this.props;
+        const {siteUrl, customSiteUrl} = this.props;
         try {
-            this.GhostApi = setupGhostApi({ siteUrl });
-            const { site, member } = await this.GhostApi.init();
+            this.GhostApi = setupGhostApi({siteUrl});
+            const {site, member} = await this.GhostApi.init();
 
             const colorOverride = this.getColorOverride();
             if (colorOverride) {
                 site.accent_color = colorOverride;
             }
 
-            this.setupFirstPromoter({ site, member });
-            this.setupSentry({ site });
-            return { site, member };
+            this.setupFirstPromoter({site, member});
+            this.setupSentry({site});
+            return {site, member};
         } catch (e) {
-            if (hasMode(["dev", "test"], { customSiteUrl })) {
+            if (hasMode(['dev', 'test'], {customSiteUrl})) {
                 return {};
             }
             throw e;
@@ -449,44 +449,44 @@ export default class App extends React.Component {
     }
 
     /** Setup Sentry */
-    setupSentry({ site }) {
+    setupSentry({site}) {
         const {
             portal_sentry: portalSentry,
             portal_version: portalVersion,
-            version: ghostVersion,
+            version: ghostVersion
         } = site;
         const appVersion = process.env.REACT_APP_VERSION || portalVersion;
         const releaseTag = `portal@${appVersion}|ghost@${ghostVersion}`;
         if (portalSentry && portalSentry.dsn) {
             Sentry.init({
                 dsn: portalSentry.dsn,
-                environment: portalSentry.env || "development",
+                environment: portalSentry.env || 'development',
                 release: releaseTag,
                 beforeSend: (event) => {
-                    if (isSentryEventAllowed({ event })) {
+                    if (isSentryEventAllowed({event})) {
                         return event;
                     }
                     return null;
                 },
                 allowUrls: [
-                    /https?:\/\/((www)\.)?unpkg\.com\/@tryghost\/portal/,
-                ],
+                    /https?:\/\/((www)\.)?unpkg\.com\/@tryghost\/portal/
+                ]
             });
         }
     }
 
     /** Setup Firstpromoter script */
-    setupFirstPromoter({ site, member }) {
-        const firstPromoterId = getFirstpromoterId({ site });
-        const siteDomain = getSiteDomain({ site });
+    setupFirstPromoter({site, member}) {
+        const firstPromoterId = getFirstpromoterId({site});
+        const siteDomain = getSiteDomain({site});
         if (firstPromoterId && siteDomain) {
-            const t = document.createElement("script");
-            t.type = "text/javascript";
+            const t = document.createElement('script');
+            t.type = 'text/javascript';
             t.async = !0;
-            t.src = "https://cdn.firstpromoter.com/fprom.js";
+            t.src = 'https://cdn.firstpromoter.com/fprom.js';
             t.onload = t.onreadystatechange = function () {
                 let _t = this.readyState;
-                if (!_t || "complete" === _t || "loaded" === _t) {
+                if (!_t || 'complete' === _t || 'loaded' === _t) {
                     try {
                         window.$FPROM.init(firstPromoterId, siteDomain);
                         if (member) {
@@ -495,14 +495,14 @@ export default class App extends React.Component {
                             if (window.$FPROM) {
                                 window.$FPROM.trackSignup({
                                     email: email,
-                                    uid: uid,
+                                    uid: uid
                                 });
                             } else {
                                 const _fprom = window._fprom || [];
                                 window._fprom = _fprom;
-                                _fprom.push(["event", "signup"]);
-                                _fprom.push(["email", email]);
-                                _fprom.push(["uid", uid]);
+                                _fprom.push(['event', 'signup']);
+                                _fprom.push(['email', email]);
+                                _fprom.push(['uid', uid]);
                             }
                         }
                     } catch (err) {
@@ -510,7 +510,7 @@ export default class App extends React.Component {
                     }
                 }
             };
-            const e = document.getElementsByTagName("script")[0];
+            const e = document.getElementsByTagName('script')[0];
             e.parentNode.insertBefore(t, e);
         }
     }
@@ -519,14 +519,14 @@ export default class App extends React.Component {
     async dispatchAction(action, data) {
         clearTimeout(this.timeoutId);
         this.setState({
-            action: `${action}:running`,
+            action: `${action}:running`
         });
         try {
             const updatedState = await ActionHandler({
                 action,
                 data,
                 state: this.state,
-                api: this.GhostApi,
+                api: this.GhostApi
             });
             this.setState(updatedState);
 
@@ -534,11 +534,11 @@ export default class App extends React.Component {
             if (
                 updatedState &&
                 updatedState.action &&
-                !updatedState.action.includes(":failed")
+                !updatedState.action.includes(':failed')
             ) {
                 this.timeoutId = setTimeout(() => {
                     this.setState({
-                        action: "",
+                        action: ''
                     });
                 }, 2000);
             }
@@ -547,24 +547,24 @@ export default class App extends React.Component {
                 type: `${action}:failed`,
                 autoHide: true,
                 closeable: true,
-                status: "error",
+                status: 'error',
                 state: this.state,
                 meta: {
-                    error,
-                },
+                    error
+                }
             });
             this.setState({
                 action: `${action}:failed`,
-                popupNotification,
+                popupNotification
             });
         }
     }
 
     /**Handle state update for preview url and Portal Link changes */
     updateStateForPreviewLinks() {
-        const { site: previewSite, ...restPreviewData } =
+        const {site: previewSite, ...restPreviewData} =
             this.fetchPreviewData();
-        const { site: linkSite, ...restLinkData } = this.fetchLinkData();
+        const {site: linkSite, ...restLinkData} = this.fetchLinkData();
 
         const updatedState = {
             site: {
@@ -574,55 +574,55 @@ export default class App extends React.Component {
                 plans: {
                     ...(this.state.site && this.state.site.plans),
                     ...(linkSite || {}).plans,
-                    ...(previewSite || {}).plans,
-                },
+                    ...(previewSite || {}).plans
+                }
             },
             ...restLinkData,
-            ...restPreviewData,
+            ...restPreviewData
         };
         this.handleSignupQuery({
             site: updatedState.site,
-            pageQuery: updatedState.pageQuery,
+            pageQuery: updatedState.pageQuery
         });
         this.setState(updatedState);
     }
 
-    handleOfferQuery({ site, offerId }) {
+    handleOfferQuery({site, offerId}) {
         removePortalLinkFromUrl();
-        const prices = getAvailablePrices({ site });
+        const prices = getAvailablePrices({site});
         const priceId = prices?.[0]?.id;
         if (this.state.member) {
-            this.dispatchAction("checkoutPlan", { plan: priceId, offerId });
+            this.dispatchAction('checkoutPlan', {plan: priceId, offerId});
         } else {
-            this.dispatchAction("signup", { plan: priceId, offerId });
+            this.dispatchAction('signup', {plan: priceId, offerId});
         }
     }
 
     /** Handle direct signup link for a price */
-    handleSignupQuery({ site, pageQuery }) {
+    handleSignupQuery({site, pageQuery}) {
         const productMonthlyPriceQueryRegex = /^(?:(\w+?))?\/monthly$/;
         const productYearlyPriceQueryRegex = /^(?:(\w+?))?\/monthly$/;
         const offerQueryRegex = /^offers\/(\w+?)\/?$/;
         let priceId = pageQuery;
-        if (offerQueryRegex.test(pageQuery || "")) {
+        if (offerQueryRegex.test(pageQuery || '')) {
             const [, offerId] = pageQuery.match(offerQueryRegex);
-            this.handleOfferQuery({ site, offerId });
+            this.handleOfferQuery({site, offerId});
             return;
-        } else if (productMonthlyPriceQueryRegex.test(pageQuery || "")) {
+        } else if (productMonthlyPriceQueryRegex.test(pageQuery || '')) {
             const [, productId] = pageQuery.match(
                 productMonthlyPriceQueryRegex
             );
-            const product = getProductFromId({ site, productId });
+            const product = getProductFromId({site, productId});
             priceId = product?.monthlyPrice?.id;
-        } else if (productYearlyPriceQueryRegex.test(pageQuery || "")) {
+        } else if (productYearlyPriceQueryRegex.test(pageQuery || '')) {
             const [, productId] = pageQuery.match(productYearlyPriceQueryRegex);
-            const product = getProductFromId({ site, productId });
+            const product = getProductFromId({site, productId});
             priceId = product?.yearlyPrice?.id;
         }
-        const queryPrice = getQueryPrice({ site: site, priceId });
-        if (!this.state.member && pageQuery && pageQuery !== "free") {
+        const queryPrice = getQueryPrice({site: site, priceId});
+        if (!this.state.member && pageQuery && pageQuery !== 'free') {
             removePortalLinkFromUrl();
-            this.dispatchAction("signup", { plan: queryPrice?.id || priceId });
+            this.dispatchAction('signup', {plan: queryPrice?.id || priceId});
         }
     }
 
@@ -635,60 +635,60 @@ export default class App extends React.Component {
         const customOfferRegex = /^offers\/(\w+?)\/?$/;
         if (customOfferRegex.test(path)) {
             return {
-                pageQuery: path,
+                pageQuery: path
             };
-        } else if (path === "signup") {
+        } else if (path === 'signup') {
             return {
-                page: "signup",
+                page: 'signup'
             };
         } else if (customMonthlyProductSignup.test(path)) {
             const [, productId] = path.match(customMonthlyProductSignup);
             return {
-                page: "signup",
-                pageQuery: `${productId}/monthly`,
+                page: 'signup',
+                pageQuery: `${productId}/monthly`
             };
         } else if (customYearlyProductSignup.test(path)) {
             const [, productId] = path.match(customYearlyProductSignup);
             return {
-                page: "signup",
-                pageQuery: `${productId}/yearly`,
+                page: 'signup',
+                pageQuery: `${productId}/yearly`
             };
         } else if (customPricesSignupRegex.test(path)) {
             const [, pageQuery] = path.match(customPricesSignupRegex);
             return {
-                page: "signup",
-                pageQuery: pageQuery,
+                page: 'signup',
+                pageQuery: pageQuery
             };
-        } else if (path === "signup/free") {
+        } else if (path === 'signup/free') {
             return {
-                page: "signup",
-                pageQuery: "free",
+                page: 'signup',
+                pageQuery: 'free'
             };
-        } else if (path === "signup/monthly") {
+        } else if (path === 'signup/monthly') {
             return {
-                page: "signup",
-                pageQuery: "monthly",
+                page: 'signup',
+                pageQuery: 'monthly'
             };
-        } else if (path === "signup/yearly") {
+        } else if (path === 'signup/yearly') {
             return {
-                page: "signup",
-                pageQuery: "yearly",
+                page: 'signup',
+                pageQuery: 'yearly'
             };
-        } else if (path === "signin") {
+        } else if (path === 'signin') {
             return {
-                page: "signin",
+                page: 'signin'
             };
-        } else if (path === "account") {
+        } else if (path === 'account') {
             return {
-                page: "accountHome",
+                page: 'accountHome'
             };
-        } else if (path === "account/plans") {
+        } else if (path === 'account/plans') {
             return {
-                page: "accountPlan",
+                page: 'accountPlan'
             };
-        } else if (path === "account/profile") {
+        } else if (path === 'account/profile') {
             return {
-                page: "accountProfile",
+                page: 'accountProfile'
             };
         }
         return {};
@@ -696,35 +696,35 @@ export default class App extends React.Component {
 
     /**Get Accent color from site data*/
     getAccentColor() {
-        const { accent_color: accentColor } = this.state.site || {};
+        const {accent_color: accentColor} = this.state.site || {};
         return accentColor;
     }
 
     /**Get final page set in App context from state data*/
-    getContextPage({ site, page, member }) {
+    getContextPage({site, page, member}) {
         /**Set default page based on logged-in status */
         if (!page) {
-            const loggedOutPage = isInviteOnlySite({ site })
-                ? "signin"
-                : "signup";
-            page = member ? "accountHome" : loggedOutPage;
+            const loggedOutPage = isInviteOnlySite({site})
+                ? 'signin'
+                : 'signup';
+            page = member ? 'accountHome' : loggedOutPage;
         }
 
-        if (page === "accountPlan" && isComplimentaryMember({ member })) {
-            page = "accountHome";
+        if (page === 'accountPlan' && isComplimentaryMember({member})) {
+            page = 'accountHome';
         }
 
-        return getActivePage({ page });
+        return getActivePage({page});
     }
 
     /**Get final member set in App context from state data*/
-    getContextMember({ page, member, customSiteUrl }) {
-        if (hasMode(["dev", "preview"], { customSiteUrl })) {
+    getContextMember({page, member, customSiteUrl}) {
+        if (hasMode(['dev', 'preview'], {customSiteUrl})) {
             /** Use dummy member(free or paid) for account pages in dev/preview mode*/
-            if (isAccountPage({ page })) {
-                if (hasMode(["dev"], { customSiteUrl })) {
+            if (isAccountPage({page})) {
+                if (hasMode(['dev'], {customSiteUrl})) {
                     return member || Fixtures.member.free;
-                } else if (hasMode(["preview"])) {
+                } else if (hasMode(['preview'])) {
                     return Fixtures.member.preview;
                 } else {
                     return Fixtures.member.paid;
@@ -748,13 +748,13 @@ export default class App extends React.Component {
             showPopup,
             pageQuery,
             popupNotification,
-            customSiteUrl,
+            customSiteUrl
         } = this.state;
-        const contextPage = this.getContextPage({ site, page, member });
+        const contextPage = this.getContextPage({site, page, member});
         const contextMember = this.getContextMember({
             page: contextPage,
             member,
-            customSiteUrl,
+            customSiteUrl
         });
         return {
             site,
@@ -767,12 +767,12 @@ export default class App extends React.Component {
             showPopup,
             popupNotification,
             customSiteUrl,
-            onAction: (_action, data) => this.dispatchAction(_action, data),
+            onAction: (_action, data) => this.dispatchAction(_action, data)
         };
     }
 
     render() {
-        if (this.state.initStatus === "success") {
+        if (this.state.initStatus === 'success') {
             return (
                 <SentryErrorBoundary site={this.state.site}>
                     <AppContext.Provider value={this.getContextFromState()}>
