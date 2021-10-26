@@ -672,7 +672,7 @@ function FreeProductCard() {
                         setSelectedProduct('free');
                     }} />
                     <h4 className="gh-portal-product-name">Free</h4>
-                    <div className="gh-portal-product-description">Free preview of {(site.title)}</div>
+                    <div className="gh-portal-product-description">New to the club or can't afford a full membership at the moment? No worries, sign up anyway to come along to our regular weekly sessions.</div>
                 </div>
                 <div className="gh-portal-product-card-pricecontainer">
                     <div className="gh-portal-product-price">
@@ -778,8 +778,7 @@ function ProductsSection({onPlanSelect, products, type = null}) {
     const {site} = useContext(AppContext);
     const {portal_plans: portalPlans} = site;
     const defaultInterval = getActiveInterval({portalPlans});
-
-    const defaultProductId = products.length > 0 ? products[0].id : 'free';
+    const defaultProductId = products.length > 0 ? products[products.length - 1].id : 'free';
     const [selectedInterval, setSelectedInterval] = useState(defaultInterval);
     const [selectedProduct, setSelectedProduct] = useState(defaultProductId);
 
@@ -833,7 +832,7 @@ export function ChangeProductSection({onPlanSelect, selectedPlan, products, type
     const activePrice = getMemberActivePrice({member});
     const activeMemberProduct = getProductFromPrice({site, priceId: activePrice.id});
     const defaultInterval = getActiveInterval({portalPlans, selectedInterval: activePrice.interval});
-    const defaultProductId = activeMemberProduct?.id || products?.[0]?.id;
+    const defaultProductId = activeMemberProduct?.id || products?.[products.length - 1]?.id;
     const [selectedInterval, setSelectedInterval] = useState(defaultInterval);
     const [selectedProduct, setSelectedProduct] = useState(defaultProductId);
 
@@ -931,7 +930,7 @@ function ChangeProductCard({product}) {
             <Checkbox name={product.id} id={`${product.id}-checkbox`} isChecked={selectedProduct === product.id} onProductSelect={() => {
                 setSelectedProduct(product.id);
             }} />
-            <h4 className="gh-portal-product-name">{product.name}</h4>
+            <h4 className="gh-portal-product-name">{product.name === 'Free' ? 'Friend' : product.name}</h4>
             <ProductCardPrice product={product} />
             {/* {product.description ? <div className="gh-portal-product-description">{product.description}</div> : ''} */}
             <ProductDescription product={product} selectedPrice={selectedPrice} activePrice={memberActivePrice} />

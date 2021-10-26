@@ -335,7 +335,7 @@ const AccountWelcome = () => {
 
     return (
         <div className='gh-portal-section'>
-            <p className='gh-portal-text-center gh-portal-free-ctatext'>You currently have a free membership, upgrade to a paid subscription for full access.</p>
+            <p className='gh-portal-text-center gh-portal-free-ctatext'>While you're subscribed, you're not a member of the club. If you're liking what's going on, consider becmoning a financial member!</p>
             <SubscribeButton />
         </div>
     );

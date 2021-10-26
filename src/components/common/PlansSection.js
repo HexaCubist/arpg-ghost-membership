@@ -565,8 +565,8 @@ function PlanBenefits({product, plans, selectedPlan}) {
         planDescription = `Full access to ` + site.title;
     }
     if (selectedPlan === 'free') {
-        planBenefits = [];
-        planDescription = `Free preview of ` + site.title;
+        planBenefits = [productBenefits.yearly[0], productBenefits.yearly[2]];
+        planDescription = `New to the club or can't afford a full membership at the moment? No worries, sign up anyway to come along to our regular weekly sessions.`;
     } else if (plan?.interval === 'month') {
         planBenefits = productBenefits.monthly;
     } else if (plan?.interval === 'year') {

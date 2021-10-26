@@ -278,6 +278,11 @@ class SignupPage extends React.Component {
             });
         }
 
+        // Change the plan from free
+        const {site, pageQuery} = this.context;
+        const prices = getSitePrices({site, pageQuery});
+        this.setState({plan: prices[prices.length - 1]});
+
         // Handle the default plan if not set
         this.handleSelectedPlan();
     }
@@ -310,10 +315,10 @@ class SignupPage extends React.Component {
             };
         }, () => {
             const {onAction} = this.context;
-            const {name, email, plan, errors} = this.state;
+            const {name, email, id, plan, errors} = this.state;
             const hasFormErrors = (errors && Object.values(errors).filter(d => !!d).length > 0);
             if (!hasFormErrors) {
-                onAction('signup', {name, email, plan});
+                onAction('signup', {name, email, plan, labels: [id]});
                 this.setState({
                     errors: {}
                 });
@@ -357,7 +362,7 @@ class SignupPage extends React.Component {
         });
 
         if (!hasSelectedPlan) {
-            return prices[0].id || 'free';
+            return prices[prices.length - 1].id || 'free';
         }
 
         return selectedPriceId;
@@ -371,12 +376,22 @@ class SignupPage extends React.Component {
             {
                 type: 'email',
                 value: state.email,
-                placeholder: 'jamie@example.com',
-                label: 'Email',
+                placeholder: 'abc123@aucklanduni.ac.nz',
+                label: 'UoA Email',
                 name: 'email',
                 required: true,
                 tabindex: 2,
                 errorMessage: errors.email || ''
+            },
+            {
+                type: 'text',
+                value: state.id,
+                placeholder: '123456789',
+                label: 'Student ID',
+                name: 'id',
+                required: true,
+                tabindex: 2,
+                errorMessage: errors.id || ''
             }
         ];
 
